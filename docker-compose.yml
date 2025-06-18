@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库
+  postgres:
+    image: postgres:15-alpine
+    container_name: tempmail-postgres
+    environment:
+      POSTGRES_DB: tempmail_db
+      POSTGRES_USER: tempmail_user
+      POSTGRES_PASSWORD: tempmail_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tempmail_user -d tempmail_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis (可选，用于缓存和会话)
+  redis:
+    image: redis:7-alpine
+    container_name: tempmail-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # MailHog - 开发用邮件服务器
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: tempmail-mailhog
+    ports:
+      - "1025:1025"  # SMTP 端口
+      - "8025:8025"  # Web UI 端口
+    environment:
+      MH_STORAGE: maildir
+      MH_MAILDIR_PATH: /maildir
+    volumes:
+      - mailhog_data:/maildir
+
+  # Adminer - 数据库管理工具 (可选)
+  adminer:
+    image: adminer:latest
+    container_name: tempmail-adminer
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
+  mailhog_data: 
