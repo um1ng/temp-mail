@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "src/app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "PRISMA_GENERATE_DATAPROXY": "true"
+  },
+  "buildCommand": "pnpm db:generate && pnpm build",
+  "installCommand": "pnpm install",
+  "framework": "nextjs"
+} 

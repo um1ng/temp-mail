@@ -37,14 +37,12 @@ services:
   mailhog:
     image: mailhog/mailhog:latest
     container_name: tempmail-mailhog
+    platform: linux/amd64
     ports:
       - "1025:1025"  # SMTP 端口
       - "8025:8025"  # Web UI 端口
     environment:
-      MH_STORAGE: maildir
-      MH_MAILDIR_PATH: /maildir
-    volumes:
-      - mailhog_data:/maildir
+      MH_STORAGE: memory
 
   # Adminer - 数据库管理工具 (可选)
   adminer:
@@ -60,5 +58,4 @@ services:
 
 volumes:
   postgres_data:
-  redis_data:
-  mailhog_data: 
+  redis_data: 

@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // 获取单个邮件详情
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const emailId = params.id;
+    const { id: emailId } = await params;
     
     const email = await db.email.findUnique({
       where: { id: emailId },
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // 标记邮件为已读
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const emailId = params.id;
+    const { id: emailId } = await params;
     const body = await request.json();
     
     const email = await db.email.findUnique({
@@ -70,7 +70,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
     
     // 更新邮件状态
-    const updatedFields: any = {};
+    const updatedFields: { isRead?: boolean } = {};
     if (typeof body.isRead === 'boolean') {
       updatedFields.isRead = body.isRead;
     }
@@ -96,7 +96,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 // 删除邮件
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const emailId = params.id;
+    const { id: emailId } = await params;
     
     const email = await db.email.findUnique({
       where: { id: emailId },

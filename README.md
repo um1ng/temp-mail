@@ -1,384 +1,214 @@
-# 📧 Temporary Email Service
+# 📧 临时邮箱服务
 
-> **A modern, privacy-focused temporary email service built with cutting-edge web technologies**
+> **现代化的临时邮箱服务，保护您的隐私，简化邮件管理**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 
-## 🎯 What is This?
+## 🎯 产品特性
 
-Imagine needing an email address for a one-time signup, testing a service, or protecting your privacy online. This temporary email service provides **instant, disposable email addresses** that automatically expire after a set time, keeping your real inbox clean and your privacy intact.
+### ⚡ 核心功能
+- **一键生成** - 瞬间创建临时邮箱地址
+- **实时接收** - 自动接收并显示邮件
+- **隐私保护** - 自动过期，无需注册
+- **测试友好** - 内置测试邮件功能
 
-Perfect for:
-- 🛡️ **Privacy Protection** - Shield your real email from spam and tracking
-- 🧪 **Development & Testing** - Test email workflows without cluttering real inboxes
-- 📝 **Quick Signups** - Register for services without long-term commitment
-- 🔒 **Anonymous Communication** - Maintain anonymity in digital interactions
+### 🎨 用户体验
+- **响应式设计** - 完美支持桌面和移动端
+- **实时刷新** - 每10秒自动检查新邮件
+- **双视图模式** - 列表和详细视图随意切换
+- **一键操作** - 复制、删除、标记已读
 
-## ✨ Key Features
+## 🚀 快速开始
 
-### 🚀 **Instant Email Generation**
-Generate unique, working email addresses in milliseconds with customizable domains and expiration times.
+### 前置要求
+- Node.js 18+
+- pnpm
+- Docker Desktop
 
-### 📱 **Modern Responsive Interface**
-Beautiful, intuitive UI that works flawlessly across all devices - from desktop to mobile.
-
-### ⚡ **Real-time Email Management**
-- **Live Email Reception** - Emails appear instantly in your temporary inbox
-- **Rich Content Support** - View both HTML and plain text emails
-- **Attachment Handling** - Download and manage email attachments
-- **Read/Unread Tracking** - Smart email status management
-
-### 🎨 **Elegant User Experience**
-- **Tabbed Interface** - Switch between list and detailed email views
-- **One-Click Actions** - Copy addresses, delete emails, mark as read
-- **Dark/Light Theme** - Adaptive design that respects user preferences
-- **Smooth Animations** - Polished interactions and state transitions
-
-### 🔧 **Developer-Friendly**
-- **RESTful API** - Complete programmatic access to all features
-- **TypeScript Throughout** - Full type safety and excellent DX
-- **Comprehensive Documentation** - Clear API docs and implementation guides
-
-## 🏗️ Architecture & Tech Stack
-
-### **Frontend Excellence**
-- **[Next.js 15](https://nextjs.org/)** - Latest React framework with App Router
-- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe development
-- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first styling
-- **[shadcn/ui](https://ui.shadcn.com/)** - Beautiful, accessible components
-- **[Lucide Icons](https://lucide.dev/)** - Consistent, modern iconography
-
-### **Backend Powerhouse**
-- **[Prisma ORM](https://www.prisma.io/)** - Type-safe database operations
-- **[PostgreSQL](https://postgresql.org/)** - Robust, scalable data storage
-- **[Zod](https://zod.dev/)** - Runtime type validation
-- **[Nodemailer](https://nodemailer.com/)** - Email processing engine
-
-### **Development & Deployment**
-- **[Docker](https://docker.com/)** - Containerized development environment
-- **[MailHog](https://github.com/mailhog/MailHog)** - Local email testing
-- **[Redis](https://redis.io/)** - Caching and session management
-- **[Adminer](https://www.adminer.org/)** - Database administration
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-Make sure you have these tools installed:
-- **Node.js 18+** - [Download here](https://nodejs.org/)
-- **pnpm** - Install with `npm install -g pnpm`
-- **Docker Desktop** - [Get it here](https://docker.com/products/docker-desktop/)
-
-### 🛠️ Installation
-
-1. **Clone and Navigate**
-   ```bash
-   git clone https://github.com/your-username/temp-mail.git
-   cd temp-mail
-   ```
-
-2. **Install Dependencies**
-   ```bash
-   pnpm install
-   ```
-
-3. **Start Development Environment**
-   ```bash
-   # Start Docker services (PostgreSQL, Redis, MailHog)
-   docker-compose up -d
-   
-   # Verify services are running
-   docker-compose ps
-   ```
-
-4. **Configure Environment**
-   ```bash
-   # Copy and edit environment variables
-   cp .env.example .env
-   # Edit .env with your preferred settings
-   ```
-
-5. **Initialize Database**
-   ```bash
-   # Generate Prisma client
-   npx prisma generate
-   
-   # Run database migrations
-   npx prisma migrate dev --name init
-   
-   # (Optional) Open database browser
-   npx prisma studio
-   ```
-
-6. **Launch Application**
-   ```bash
-   pnpm dev
-   ```
-
-🎉 **You're ready!** Open [http://localhost:3000](http://localhost:3000) and start creating temporary emails!
-
-### 🐳 Docker Development
-
-For a completely isolated development environment:
+### 安装运行
 
 ```bash
-# Start all services
+# 1. 安装依赖
+pnpm install
+
+# 2. 启动服务
 docker-compose up -d
 
-# View logs
-docker-compose logs -f
+# 3. 初始化数据库
+npx prisma generate
+npx prisma migrate dev
 
-# Stop everything
-docker-compose down
+# 4. 启动应用
+pnpm dev
 ```
 
-**Available Services:**
-- **Application**: http://localhost:3000
-- **MailHog UI**: http://localhost:8025 (Email testing interface)
-- **Adminer**: http://localhost:8080 (Database management)
-- **PostgreSQL**: localhost:5432
-- **Redis**: localhost:6379
+### 立即使用
 
-## 📋 Available Commands
+🎉 **应用地址**: http://localhost:3000
 
+**管理工具**:
+- **邮件管理**: http://localhost:8025 (MailHog)
+- **数据库**: http://localhost:8080 (Adminer)
+
+## 🏗️ 技术架构
+
+### 前端
+- **Next.js 15** - React 框架，App Router
+- **TypeScript** - 类型安全
+- **Tailwind CSS** - 样式框架
+- **shadcn/ui** - 组件库
+
+### 后端
+- **Prisma ORM** - 数据库操作
+- **PostgreSQL** - 主数据库
+- **Nodemailer** - 邮件处理
+- **Zod** - 数据验证
+
+### 开发环境
+- **Docker** - 容器化开发
+- **MailHog** - SMTP 测试
+- **Redis** - 缓存支持
+
+## 📋 API 接口
+
+### 邮箱管理
 ```bash
-# Development
-pnpm dev              # Start development server with Turbopack
-pnpm build            # Build for production
-pnpm start            # Start production server
-pnpm lint             # Run ESLint checks
+# 创建邮箱
+POST /api/addresses
 
-# Database Operations
-pnpm db:generate      # Generate Prisma client
-pnpm db:migrate       # Run database migrations
-pnpm db:studio        # Open Prisma Studio
-pnpm db:reset         # Reset database to clean state
-pnpm db:seed          # Populate with sample data
+# 获取邮件
+GET /api/emails?emailAddressId={id}
 
-# Docker Operations
-pnpm docker:up        # Start all Docker services
-pnpm docker:down      # Stop all Docker services
-pnpm docker:logs      # View container logs
-pnpm docker:clean     # Remove all containers and volumes
+# 标记已读
+PATCH /api/emails/{id}
+
+# 删除邮件
+DELETE /api/emails/{id}
 ```
 
-## 🔧 Configuration
+### 邮件服务
+```bash
+# 接收邮件
+POST /api/receive-email
 
-### Environment Variables
+# 发送测试邮件
+POST /api/send-test-email
+```
 
-Create a `.env` file with these settings:
+## ⚙️ 配置
 
+### 环境变量
 ```env
-# Database Configuration
 DATABASE_URL="postgresql://tempmail_user:tempmail_pass@localhost:5432/tempmail_db"
-
-# Email Domains (customize your available domains)
 ALLOWED_DOMAINS="tempmail.local,10minutemail.local,guerrillamail.local"
-
-# Email Settings
 EMAIL_EXPIRATION_MINUTES=60
 SMTP_HOST=localhost
 SMTP_PORT=1025
-SMTP_SECURE=false
-
-# Application Settings
-NODE_ENV=development
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# Optional: Real SMTP for production
-# SMTP_USER=your-email@gmail.com
-# SMTP_PASS=your-app-password
 ```
 
-### Customizing Domains
-
-Add your own domains to the `ALLOWED_DOMAINS` environment variable:
-
-```env
-ALLOWED_DOMAINS="mytemp.email,quickmail.dev,testinbox.com"
-```
-
-## 📚 API Reference
-
-### 📬 Email Addresses
-
-**Create New Address**
-```http
-POST /api/addresses
-Content-Type: application/json
-
-{
-  "expirationMinutes": 60,
-  "domain": "tempmail.local"
-}
-```
-
-**Get Address Details**
-```http
-GET /api/addresses?address=example@tempmail.local
-```
-
-**Response:**
-```json
-{
-  "emailAddress": {
-    "id": "cuid123",
-    "address": "abc123@tempmail.local",
-    "createdAt": "2024-12-24T10:00:00Z",
-    "expiresAt": "2024-12-24T11:00:00Z",
-    "isActive": true
-  }
-}
-```
-
-### 📧 Email Management
-
-**Get Emails for Address**
-```http
-GET /api/emails?emailAddressId=cuid123&page=1&limit=20
-```
-
-**Get Specific Email**
-```http
-GET /api/emails/email_id_123
-```
-
-**Mark as Read/Unread**
-```http
-PATCH /api/emails/email_id_123
-Content-Type: application/json
-
-{
-  "isRead": true
-}
-```
-
-**Delete Email**
-```http
-DELETE /api/emails/email_id_123
-```
-
-## 🧪 Testing
-
-### Email Testing with MailHog
-
-1. **Access MailHog Interface**: http://localhost:8025
-2. **Send Test Email**: Use the web interface or SMTP
-3. **View in Application**: Refresh your temporary inbox
-
-### API Testing
-
+### 常用命令
 ```bash
-# Test email address creation
-curl -X POST http://localhost:3000/api/addresses \
-  -H "Content-Type: application/json" \
-  -d '{"expirationMinutes": 30}'
+# 开发
+pnpm dev              # 启动开发服务器
+pnpm build            # 构建生产版本
 
-# Test email retrieval
-curl "http://localhost:3000/api/emails?emailAddressId=YOUR_ADDRESS_ID"
+# 数据库
+npx prisma generate   # 生成客户端
+npx prisma studio     # 数据库浏览器
+
+# Docker
+docker-compose up -d  # 启动服务
+docker-compose down   # 停止服务
 ```
 
-## 🎨 User Interface
+## 🎯 使用场景
 
-### Main Features
+### 个人用户
+- 🛡️ **隐私保护** - 避免主邮箱被骚扰
+- 📝 **快速注册** - 临时账号注册验证
+- 🧪 **服务测试** - 测试邮件发送功能
 
-- **🎯 Instant Generation**: Click to generate a new temporary email address
-- **📋 One-Click Copy**: Copy addresses to clipboard with a single click
-- **🔄 Smart Refresh**: Auto-refresh emails or manually trigger updates
-- **📱 Mobile Optimized**: Fully responsive design for all screen sizes
-- **🎭 Dual Views**: Toggle between compact list and detailed email views
-- **🗑️ Quick Actions**: Delete, mark as read, or manage emails efficiently
+### 开发团队
+- ⚡ **API 测试** - 完整的邮件API
+- 🔧 **开发调试** - 本地SMTP测试环境
+- 📊 **数据管理** - 可视化数据库界面
 
-### Design Philosophy
+## 🔧 故障排除
 
-Our interface follows modern UX principles:
-- **Minimalist Design**: Clean, distraction-free interface
-- **Intuitive Navigation**: Logical flow and clear action buttons
-- **Accessible**: WCAG compliant with keyboard navigation support
-- **Fast Loading**: Optimized for quick interactions and responsiveness
+### 常见问题
 
-## 🔒 Privacy & Security
+**服务启动失败**
+```bash
+# 检查端口占用
+lsof -i :3000
 
-- **No Personal Data**: We don't store any personal information
-- **Automatic Cleanup**: Emails and addresses are automatically purged
-- **Local Processing**: All email processing happens on your infrastructure
-- **Open Source**: Full transparency with open source code
+# 重启Docker服务
+docker-compose restart
+```
 
-## 🛠️ Development Status
+**数据库连接错误**
+```bash
+# 重置数据库
+npx prisma migrate reset
 
-### ✅ Completed Features
-- Complete database schema and migrations
-- Full backend API implementation (CRUD operations)
-- Modern, responsive frontend interface
-- Docker development environment
-- TypeScript type definitions
-- Component library integration
+# 检查容器状态
+docker-compose ps
+```
 
-### 🚧 In Progress
-- Email service layer implementation
-- Frontend-backend integration
-- Real-time email notifications
-- SMTP server integration
+**SMTP发送失败**
+```bash
+# 查看MailHog日志
+docker logs tempmail-mailhog
 
-### 📋 Roadmap
-- [ ] WebSocket real-time updates
-- [ ] Email forwarding capabilities
-- [ ] Advanced search and filtering
-- [ ] Custom domain support
-- [ ] API rate limiting
-- [ ] Performance monitoring
-- [ ] Mobile application
+# 访问邮件管理界面
+open http://localhost:8025
+```
 
-## 🤝 Contributing
+## 🚀 部署
 
-We welcome contributions! Here's how to get started:
+### 生产环境
+1. 配置真实的SMTP服务器
+2. 设置生产数据库连接
+3. 配置域名和SSL证书
+4. 启用环境变量保护
 
-1. **Fork the Repository**
-   ```bash
-   git clone https://github.com/your-username/temp-mail.git
-   ```
+### 性能优化
+- 启用Redis缓存
+- 配置数据库连接池
+- 设置CDN加速
+- 监控系统资源
 
-2. **Create Feature Branch**
-   ```bash
-   git checkout -b feature/amazing-new-feature
-   ```
+## 📖 文档
 
-3. **Make Your Changes**
-   - Follow the existing code style
-   - Add tests for new functionality
-   - Update documentation as needed
+- [📋 实施指南](docs/IMPLEMENTATION_GUIDE.md) - 详细的部署和配置指南
+- [🚀 Vercel 部署](docs/VERCEL_DEPLOYMENT.md) - 云平台部署指南
+- [📊 技术栈分析](docs/TECH_STACK_ANALYSIS.md) - 深度技术架构解析
+- [🔧 API文档](docs/IMPLEMENTATION_GUIDE.md#api-使用示例) - 完整的API使用示例
 
-4. **Commit and Push**
-   ```bash
-   git commit -m "✨ Add amazing new feature"
-   git push origin feature/amazing-new-feature
-   ```
+## 🤝 贡献
 
-5. **Open Pull Request**
-   Describe your changes and link any relevant issues
+欢迎提交 Issue 和 Pull Request！
 
-### Development Guidelines
+1. Fork 项目
+2. 创建功能分支
+3. 提交更改
+4. 发起 Pull Request
 
-- **Code Quality**: Use TypeScript, ESLint, and Prettier
-- **Testing**: Write tests for new features
-- **Documentation**: Update docs for any API changes
-- **Performance**: Consider performance implications
-- **Security**: Follow security best practices
+## 📄 许可证
 
-## 📄 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+[MIT License](LICENSE)
 
 ---
 
 <div align="center">
 
-**Built with ❤️ using modern web technologies**
+**🎉 现在就开始使用吧！** 
 
-[Report Bug](https://github.com/your-username/temp-mail/issues) • [Request Feature](https://github.com/your-username/temp-mail/issues) • [Documentation](https://github.com/your-username/temp-mail/wiki)
+[立即体验](http://localhost:3000) • [查看文档](docs/IMPLEMENTATION_GUIDE.md) • [报告问题](../../issues)
+
+**使用现代Web技术构建 ❤️**
 
 </div>
 

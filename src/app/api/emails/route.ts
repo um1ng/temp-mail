@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { GetEmailsRequest, GetEmailsResponse } from '@/types/email';
+import { GetEmailsResponse } from '@/types/email';
 import { z } from 'zod';
 
 const getEmailsSchema = z.object({
@@ -60,8 +60,22 @@ export async function GET(request: NextRequest) {
     
     const hasMore = skip + emails.length < total;
     
+    // 转换数据库结果以匹配TypeScript接口
+    const formattedEmails = emails.map((email: typeof emails[0]) => ({
+      ...email,
+      subject: email.subject ?? undefined,
+      textContent: email.textContent ?? undefined,
+      htmlContent: email.htmlContent ?? undefined,
+      attachments: email.attachments.map((att: typeof email.attachments[0]) => ({
+        ...att,
+        contentType: att.contentType ?? undefined,
+        size: att.size ?? undefined,
+        filePath: att.filePath ?? undefined,
+      })),
+    }));
+    
     const response: GetEmailsResponse = {
-      emails,
+      emails: formattedEmails,
       total,
       hasMore,
     };

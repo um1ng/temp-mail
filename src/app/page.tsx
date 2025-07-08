@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,20 +19,39 @@ interface Email {
   isRead: boolean;
 }
 
+
+
 export default function Home() {
   const [currentEmail, setCurrentEmail] = useState<string>("");
+  const [currentAddressId, setCurrentAddressId] = useState<string>("");
   const [emails, setEmails] = useState<Email[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
 
   // 生成随机邮箱地址
-  const generateEmail = () => {
-    const randomString = Math.random().toString(36).substring(2, 10);
-    const domains = ["tempmail.com", "10minutemail.com", "guerrillamail.com"];
-    const domain = domains[Math.floor(Math.random() * domains.length)];
-    const email = `${randomString}@${domain}`;
-    setCurrentEmail(email);
-    setEmails([]);
-    toast.success("新邮箱地址已生成");
+  const generateEmail = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/addresses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ expirationMinutes: 60 }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to generate email');
+      
+      const data = await response.json();
+      setCurrentEmail(data.emailAddress.address);
+      setCurrentAddressId(data.emailAddress.id);
+      setEmails([]);
+      toast.success("新邮箱地址已生成");
+    } catch (error) {
+      console.error('Error generating email:', error);
+      toast.error("生成邮箱地址失败");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // 复制邮箱地址
@@ -44,53 +63,141 @@ export default function Home() {
   };
 
   // 刷新邮件
-  const refreshEmails = () => {
-    if (!currentEmail) return;
+  const refreshEmails = useCallback(async () => {
+    if (!currentAddressId) return;
     
     setIsLoading(true);
-    // 模拟获取邮件
-    setTimeout(() => {
-      const mockEmails: Email[] = [
-        {
-          id: "1",
-          from: "service@example.com",
-          subject: "欢迎使用临时邮箱服务",
-          content: "感谢您使用我们的临时邮箱服务。这是一封测试邮件。",
-          timestamp: new Date(),
-          isRead: false
-        },
-        {
-          id: "2",
-          from: "noreply@github.com",
-          subject: "验证您的邮箱地址",
-          content: "请点击以下链接验证您的邮箱地址...",
-          timestamp: new Date(Date.now() - 300000),
-          isRead: false
-        }
-      ];
-      setEmails(mockEmails);
+    try {
+      const response = await fetch(`/api/emails?emailAddressId=${currentAddressId}`);
+      if (!response.ok) throw new Error('Failed to fetch emails');
+      
+      const data = await response.json();
+      // 转换API返回的数据格式
+      const formattedEmails: Email[] = data.emails.map((email: {
+        id: string;
+        fromAddress: string;
+        subject?: string;
+        textContent?: string;
+        htmlContent?: string;
+        receivedAt: string;
+        isRead: boolean;
+      }) => ({
+        id: email.id,
+        from: email.fromAddress,
+        subject: email.subject || '(无主题)',
+        content: email.textContent || email.htmlContent || '(无内容)',
+        timestamp: new Date(email.receivedAt),
+        isRead: email.isRead
+      }));
+      
+      setEmails(formattedEmails);
+      setLastRefresh(new Date());
+      if (formattedEmails.length > emails.length) {
+        toast.success(`发现 ${formattedEmails.length - emails.length} 封新邮件！`);
+      } else {
+        toast.success(`邮件已刷新 (${formattedEmails.length} 封)`);
+      }
+    } catch (error) {
+      console.error('Error fetching emails:', error);
+      toast.error("刷新邮件失败");
+    } finally {
       setIsLoading(false);
-      toast.success("邮件已刷新");
-    }, 1000);
-  };
+    }
+  }, [currentAddressId, emails.length]);
 
   // 删除邮件
-  const deleteEmail = (emailId: string) => {
-    setEmails(emails.filter(email => email.id !== emailId));
-    toast.success("邮件已删除");
+  const deleteEmail = async (emailId: string) => {
+    try {
+      const response = await fetch(`/api/emails/${emailId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) throw new Error('Failed to delete email');
+      
+      setEmails(emails.filter(email => email.id !== emailId));
+      toast.success("邮件已删除");
+    } catch (error) {
+      console.error('Error deleting email:', error);
+      toast.error("删除邮件失败");
+    }
   };
 
   // 标记邮件为已读
-  const markAsRead = (emailId: string) => {
-    setEmails(emails.map(email => 
-      email.id === emailId ? { ...email, isRead: true } : email
-    ));
+  const markAsRead = async (emailId: string) => {
+    try {
+      const response = await fetch(`/api/emails/${emailId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isRead: true }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to mark email as read');
+      
+      setEmails(emails.map(email => 
+        email.id === emailId ? { ...email, isRead: true } : email
+      ));
+    } catch (error) {
+      console.error('Error marking email as read:', error);
+      // 静默失败，不显示错误消息，因为这不是关键操作
+    }
+  };
+
+  // 发送测试邮件
+  const sendTestEmail = async () => {
+    if (!currentEmail) return;
+    
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/send-test-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          to: currentEmail,
+          subject: '欢迎使用临时邮箱服务',
+          content: '这是一封测试邮件，用于验证您的临时邮箱是否正常工作。如果您能看到这条消息，说明邮件接收功能运行正常！'
+        }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to send test email');
+      
+      toast.success("测试邮件已发送，请稍后刷新查看");
+      // 3秒后自动刷新邮件
+      setTimeout(() => {
+        refreshEmails();
+      }, 3000);
+    } catch (error) {
+      console.error('Error sending test email:', error);
+      toast.error("发送测试邮件失败");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // 初始化时生成邮箱
   useEffect(() => {
     generateEmail();
   }, []);
+
+  // 自动刷新邮件
+  useEffect(() => {
+    if (!autoRefresh || !currentAddressId || isLoading) return;
+
+    const interval = setInterval(() => {
+      refreshEmails();
+    }, 10000); // 每10秒刷新一次
+
+    return () => clearInterval(interval);
+  }, [autoRefresh, currentAddressId, isLoading, refreshEmails]);
+
+  // 切换自动刷新
+  const toggleAutoRefresh = () => {
+    setAutoRefresh(!autoRefresh);
+    if (!autoRefresh) {
+      toast.success("已开启自动刷新 (每10秒)");
+    } else {
+      toast.success("已关闭自动刷新");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
@@ -117,19 +224,37 @@ export default function Home() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Input 
-                value={currentEmail} 
-                readOnly 
-                className="font-mono"
-                placeholder="点击生成新邮箱"
-              />
-              <Button onClick={copyEmail} variant="outline" size="icon">
-                <Copy className="h-4 w-4" />
-              </Button>
-              <Button onClick={generateEmail} variant="outline">
-                生成新邮箱
-              </Button>
+            <div className="space-y-4">
+              <div className="flex gap-2">
+                <Input 
+                  value={currentEmail} 
+                  readOnly 
+                  className="font-mono"
+                  placeholder="点击生成新邮箱"
+                />
+                <Button onClick={copyEmail} variant="outline" size="icon">
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button onClick={generateEmail} variant="outline">
+                  生成新邮箱
+                </Button>
+              </div>
+              {currentEmail && (
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={sendTestEmail} 
+                    variant="secondary" 
+                    size="sm"
+                    disabled={isLoading}
+                  >
+                    <Mail className="h-4 w-4 mr-2" />
+                    发送测试邮件
+                  </Button>
+                  <p className="text-sm text-slate-500 flex items-center">
+                    发送测试邮件来验证接收功能
+                  </p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -142,17 +267,31 @@ export default function Home() {
                 <CardTitle>收件箱</CardTitle>
                 <CardDescription>
                   {emails.length} 封邮件
+                  {lastRefresh && (
+                    <span className="ml-2 text-xs">
+                      • 最后更新: {lastRefresh.toLocaleTimeString()}
+                    </span>
+                  )}
                 </CardDescription>
               </div>
-              <Button 
-                onClick={refreshEmails} 
-                variant="outline" 
-                size="sm"
-                disabled={isLoading || !currentEmail}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                刷新
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  onClick={toggleAutoRefresh} 
+                  variant={autoRefresh ? "default" : "outline"} 
+                  size="sm"
+                >
+                  {autoRefresh ? "自动刷新" : "手动模式"}
+                </Button>
+                <Button 
+                  onClick={refreshEmails} 
+                  variant="outline" 
+                  size="sm"
+                  disabled={isLoading || !currentAddressId}
+                >
+                  <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                  刷新
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
