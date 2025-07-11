@@ -1,7 +1,8 @@
 # 📧 临时邮箱服务 (TempMailServer)
 
 > **现代化的临时邮箱服务，保护您的隐私，简化邮件管理**  
-> 基于 Next.js 15 + React 19 + TypeScript 构建的企业级邮件管理系统
+> 基于 Next.js 15 + React 19 + TypeScript 构建的企业级邮件管理系统  
+> 🎉 **已完成邮箱管理器全面重构，用户体验显著提升**
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
@@ -30,6 +31,44 @@
 - **详细视图** - 完整的邮件查看体验
 - **一键操作** - 复制、删除、标记已读、回复等
 
+## 🚀 最新功能更新 (2025年1月)
+
+### 🏗️ 三层架构邮箱管理器
+- **简化视图** - 新手友好的场景导向界面
+- **标准视图** - 平衡的功能性与易用性
+- **专家视图** - 高级用户的全功能管理界面
+
+### 🎯 场景导向邮箱模板
+- **网站注册** - 1小时有效期，自动提取验证码
+- **验证码接收** - 15分钟有效期，验证码高亮
+- **文件接收** - 3小时有效期，附件预览
+- **订阅测试** - 12小时有效期，邮件分类
+- **应用测试** - 24小时有效期，开发者模式
+
+### ⚡ 智能化批量操作
+- **批量续期** - 一键续期多个邮箱
+- **批量管理** - 删除、归档、标签管理
+- **数据导出** - CSV格式完整数据导出
+- **操作撤销** - 误操作快速恢复
+
+### 📱 移动端优化体验
+- **滑动手势** - 左右滑动执行快捷操作
+- **底部操作栏** - 移动端友好的批量操作界面
+- **响应式卡片** - 完美适配所有屏幕尺寸
+- **PWA支持** - 可安装到设备桌面
+
+### 🤖 智能推荐与自动化
+- **使用模式分析** - 智能分析用户使用习惯
+- **个性化推荐** - 基于使用模式的功能推荐
+- **自动化任务** - 定时清理、自动续期等
+- **智能通知** - 过期提醒和重要通知
+
+### 📊 高级统计与监控
+- **8维度统计** - 全面的邮箱使用数据
+- **实时监控** - 邮箱状态实时更新
+- **趋势分析** - 使用趋势和模式识别
+- **数据洞察** - 深度数据分析和建议
+
 ## 📁 项目结构
 
 ```
@@ -39,15 +78,71 @@ temp-mail/
 │   │   ├── 📁 api/            # API 路由
 │   │   │   ├── addresses/     # 邮箱地址管理
 │   │   │   ├── emails/        # 邮件管理
+│   │   │   ├── analytics/     # 数据分析
+│   │   │   ├── lifecycle/     # 生命周期管理
+│   │   │   ├── proxy/         # 代理服务
 │   │   │   ├── receive-email/ # 接收邮件
 │   │   │   └── send-test-email/ # 发送测试邮件
 │   │   ├── layout.tsx         # 根布局
 │   │   ├── page.tsx          # 首页
 │   │   └── globals.css       # 全局样式
 │   ├── 📁 components/         # React 组件
+│   │   ├── enhanced-mailbox-manager.tsx  # 增强邮箱管理器
+│   │   ├── mailbox-views/     # 邮箱管理视图
+│   │   │   ├── simple-view.tsx      # 简化视图
+│   │   │   ├── standard-view.tsx    # 标准视图
+│   │   │   └── expert-view.tsx      # 专家视图
+│   │   ├── analytics-dashboard.tsx  # 分析仪表板
+│   │   ├── batch-operation-toolbar.tsx # 批量操作工具栏
+│   │   ├── smart-classification.tsx     # 智能分类
+│   │   ├── lifecycle-management.tsx     # 生命周期管理
+│   │   ├── swipeable-item.tsx           # 滑动组件
 │   │   └── ui/               # shadcn/ui 组件
 │   ├── 📁 hooks/             # 自定义 React Hooks
+│   │   ├── use-batch-operations.ts     # 批量操作钩子
+│   │   ├── use-notifications.ts        # 通知系统钩子
+│   │   ├── use-security.ts             # 安全钩子
+│   │   └── use-search-optimization.ts  # 搜索优化钩子
 │   ├── 📁 lib/               # 工具库和配置
+│   │   ├── security.ts       # 安全工具
+│   │   ├── utils.ts         # 通用工具
+│   │   └── db.ts            # 数据库配置
+│   └── 📁 types/            # TypeScript 类型定义
+├── 📁 prisma/               # Prisma ORM
+│   ├── schema.prisma        # 数据库模式
+│   └── migrations/          # 数据库迁移
+├── 📁 public/              # 静态资源
+├── 📁 docs/                # 项目文档
+│   └── FEATURE_ENHANCEMENT_PROPOSAL.md  # 功能增强文档
+├── package.json            # 项目配置
+├── tailwind.config.js      # Tailwind CSS 配置
+├── tsconfig.json          # TypeScript 配置
+└── README.md              # 项目说明
+```
+
+## 🏗️ 技术架构
+
+### 核心技术栈
+- **前端框架**: Next.js 15 (React 19)
+- **开发语言**: TypeScript 5
+- **数据库**: PostgreSQL + Prisma ORM
+- **样式框架**: Tailwind CSS + shadcn/ui
+- **状态管理**: React Hooks + Context API
+- **包管理器**: pnpm
+
+### 创新架构特性
+- **三层渐进式UI架构**: 简化/标准/专家视图
+- **场景导向设计模式**: 基于使用场景的功能组织
+- **智能推荐系统**: 基于用户行为的个性化推荐
+- **批量操作引擎**: 高效的批量管理和撤销机制
+- **移动端优化**: 手势交互和PWA支持
+
+### 关键组件
+- **EnhancedMailboxManager**: 核心邮箱管理器
+- **ScenarioTemplates**: 场景模板系统
+- **BatchOperations**: 批量操作系统
+- **SmartRecommendations**: 智能推荐引擎
+- **SwipeableItem**: 移动端滑动组件
 │   └── 📁 types/             # TypeScript 类型定义
 ├── 📁 docs/                  # 项目文档
 ├── 📁 prisma/                # 数据库相关

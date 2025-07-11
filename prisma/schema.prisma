@@ -11,11 +11,22 @@ datasource db {
 }
 
 model EmailAddress {
-  id        String   @id @default(cuid())
-  address   String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  expiresAt DateTime @map("expires_at")
-  isActive  Boolean  @default(true) @map("is_active")
+  id                String   @id @default(cuid())
+  address           String   @unique
+  createdAt         DateTime @default(now()) @map("created_at")
+  expiresAt         DateTime @map("expires_at")
+  isActive          Boolean  @default(true) @map("is_active")
+  
+  // 生命周期管理字段
+  renewalCount      Int      @default(0) @map("renewal_count")
+  maxRenewals       Int      @default(3) @map("max_renewals")
+  lastRenewalAt     DateTime? @map("last_renewal_at")
+  warningsSent      Int      @default(0) @map("warnings_sent")
+  autoRenewalEnabled Boolean @default(false) @map("auto_renewal_enabled")
+  customExpirationMinutes Int @default(60) @map("custom_expiration_minutes")
+  
+  // 标签字段
+  label             String?
   
   // 关联的邮件
   emails    Email[]
@@ -34,12 +45,47 @@ model Email {
   receivedAt      DateTime @default(now()) @map("received_at")
   isRead          Boolean  @default(false) @map("is_read")
   hasAttachments  Boolean  @default(false) @map("has_attachments")
+  isStarred       Boolean  @default(false) @map("is_starred")
+  isArchived      Boolean  @default(false) @map("is_archived")
+  isDeleted       Boolean  @default(false) @map("is_deleted")
+  
+  // 智能分类字段
+  category        String?  // 邮件分类：verification, notification, marketing, security, other
+  tags            String[] // 标签数组
+  verificationCode String? @map("verification_code") // 提取的验证码
+  
+  // 加密相关字段
+  isEncrypted     Boolean  @default(false) @map("is_encrypted")
+  encryptionAlgorithm String? @map("encryption_algorithm")
+  encryptedContent String?  @map("encrypted_content")
+  encryptedSubject String?  @map("encrypted_subject")
+  encryptionKeyId String?  @map("encryption_key_id")
+  
+  // 邮件大小和处理时间
+  size            Int?     // 邮件大小（字节）
+  createdAt       DateTime @default(now()) @map("created_at")
+  fromDomain      String?  @map("from_domain") // 发件人域名
+  readAt          DateTime? @map("read_at") // 已读时间
+  extensionCount  Int      @default(0) @map("extension_count") // 续期次数
+  forwardCount    Int      @default(0) @map("forward_count") // 转发次数
   
   // 关联的邮箱地址
   emailAddress    EmailAddress @relation(fields: [emailAddressId], references: [id], onDelete: Cascade)
   
   // 关联的附件
   attachments     Attachment[]
+  
+  // 关联的分享记录
+  shares          EmailShare[]
+  
+  // 关联的加密记录
+  encryptions     EmailEncryption[]
+  
+  // 关联的解密记录
+  decryptions     EmailDecryption[]
+  
+  // 关联的转发记录
+  forwards        EmailForward[]
   
   @@map("emails")
 }
@@ -56,4 +102,74 @@ model Attachment {
   email       Email   @relation(fields: [emailId], references: [id], onDelete: Cascade)
   
   @@map("attachments")
+} 
+
+// 邮件分享表
+model EmailShare {
+  id          String   @id @default(cuid())
+  emailId     String   @map("email_id")
+  shareToken  String   @unique @map("share_token")
+  password    String?  // 可选的密码保护
+  expiresAt   DateTime? @map("expires_at")
+  viewCount   Int      @default(0) @map("view_count")
+  maxViews    Int?     @map("max_views")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  lastViewedAt DateTime? @map("last_viewed_at")
+  
+  // 关联的邮件
+  email       Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  
+  @@map("email_shares")
+}
+
+// 加密操作记录表
+model EmailEncryption {
+  id          String   @id @default(cuid())
+  emailId     String   @map("email_id")
+  algorithm   String   // 加密算法
+  keyId       String?  @map("key_id") // 密钥标识
+  encryptedAt DateTime @default(now()) @map("encrypted_at")
+  
+  // 关联的邮件
+  email       Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  
+  @@map("email_encryptions")
+}
+
+// 解密操作记录表
+model EmailDecryption {
+  id          String   @id @default(cuid())
+  emailId     String   @map("email_id")
+  success     Boolean  // 解密是否成功
+  decryptedAt DateTime @default(now()) @map("decrypted_at")
+  ipAddress   String?  @map("ip_address") // 解密请求的IP地址
+  userAgent   String?  @map("user_agent") // 用户代理
+  
+  // 关联的邮件
+  email       Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  
+  @@map("email_decryptions")
+} 
+
+// 邮件转发记录表
+model EmailForward {
+  id               String   @id @default(cuid())
+  emailId          String   @map("email_id")
+  toEmail          String   @map("to_email")
+  content          String?  // 转发内容
+  htmlContent      String?  @map("html_content") // HTML格式内容
+  scheduledAt      DateTime? @map("scheduled_at") // 定时转发时间
+  sentAt           DateTime? @map("sent_at") // 实际发送时间
+  status           String   @default("pending") // pending, scheduled, sent, failed
+  messageId        String?  @map("message_id") // 邮件服务器返回的ID
+  includeAttachments Boolean @default(false) @map("include_attachments")
+  password         String?  // 访问密码
+  expireAfter      Int?     @map("expire_after") // 过期时间(小时)
+  createdAt        DateTime @default(now()) @map("created_at")
+  
+  // 关联的邮件
+  email            Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+  
+  @@map("email_forwards")
 } 

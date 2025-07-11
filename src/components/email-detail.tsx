@@ -1,12 +1,12 @@
 "use client"
 
 import * as React from "react"
-import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
+import { EmailForwardShare } from "@/components/email-forward-share"
 import { 
   Reply, 
   ReplyAll, 
@@ -34,6 +34,9 @@ interface Email {
   content: string
   timestamp: Date
   isRead: boolean
+  isStarred?: boolean
+  isArchived?: boolean
+  isDeleted?: boolean
   hasAttachments?: boolean
   attachments?: Array<{
     name: string
@@ -49,8 +52,8 @@ interface EmailDetailProps {
   onReplyAll?: (email: Email) => void
   onForward?: (email: Email) => void
   onDelete?: (emailId: string) => void
-  onStar?: (emailId: string) => void
-  onArchive?: (emailId: string) => void
+  onStar?: (emailId: string, isStarred: boolean) => void
+  onArchive?: (emailId: string, isArchived: boolean) => void
   className?: string
 }
 
@@ -65,7 +68,6 @@ export function EmailDetail({
   onArchive,
   className 
 }: EmailDetailProps) {
-  const [isStarred, setIsStarred] = useState(false)
 
   const getInitials = (email: string) => {
     const parts = email.split('@')[0]
@@ -83,8 +85,11 @@ export function EmailDetail({
   }
 
   const handleStar = () => {
-    setIsStarred(!isStarred)
-    onStar?.(email!.id)
+    onStar?.(email!.id, !email!.isStarred)
+  }
+
+  const handleArchive = () => {
+    onArchive?.(email!.id, !email!.isArchived)
   }
 
   if (!email) {
@@ -141,6 +146,7 @@ export function EmailDetail({
               <Forward className="h-4 w-4 mr-2" />
               转发
             </Button>
+            <EmailForwardShare email={email} />
           </div>
         </div>
         
@@ -149,14 +155,14 @@ export function EmailDetail({
             variant="ghost"
             size="sm"
             onClick={handleStar}
-            className={isStarred ? "text-yellow-500" : ""}
+            className={email.isStarred ? "text-yellow-500" : ""}
           >
-            <Star className={cn("h-4 w-4", isStarred && "fill-current")} />
+            <Star className={cn("h-4 w-4", email.isStarred && "fill-current")} />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onArchive?.(email.id)}
+            onClick={handleArchive}
           >
             <Archive className="h-4 w-4" />
           </Button>

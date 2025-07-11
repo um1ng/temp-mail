@@ -6,6 +6,9 @@ import { z } from 'zod';
 const createEmailAddressSchema = z.object({
   domain: z.string().optional(),
   expirationMinutes: z.number().min(1).max(1440).optional().default(60),
+  autoRenewalEnabled: z.boolean().optional().default(false),
+  maxRenewals: z.number().min(1).max(10).optional().default(3),
+  label: z.string().optional(),
 });
 
 // 生成随机邮箱地址
@@ -24,7 +27,7 @@ function generateRandomAddress(domain?: string): string {
 export async function POST(request: NextRequest) {
   try {
     const body: CreateEmailAddressRequest = await request.json();
-    const { domain, expirationMinutes } = createEmailAddressSchema.parse(body);
+    const { domain, expirationMinutes, autoRenewalEnabled, maxRenewals, label } = createEmailAddressSchema.parse(body);
     
     // 生成唯一的邮箱地址
     let address: string;
@@ -57,6 +60,10 @@ export async function POST(request: NextRequest) {
       data: {
         address,
         expiresAt,
+        autoRenewalEnabled,
+        maxRenewals,
+        customExpirationMinutes: expirationMinutes,
+        label,
       },
     });
     
@@ -87,42 +94,53 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const address = searchParams.get('address');
     
-    if (!address) {
-      return NextResponse.json(
-        { error: 'Email address is required' },
-        { status: 400 }
-      );
+    // 如果提供了address参数，返回特定地址的信息
+    if (address) {
+      const emailAddress = await db.emailAddress.findUnique({
+        where: { address },
+        include: {
+          emails: {
+            orderBy: { receivedAt: 'desc' },
+            take: 50,
+            include: {
+              attachments: true,
+            },
+          },
+        },
+      });
+      
+      if (!emailAddress) {
+        return NextResponse.json(
+          { error: 'Email address not found' },
+          { status: 404 }
+        );
+      }
+      
+      // 检查是否过期
+      if (emailAddress.expiresAt < new Date() || !emailAddress.isActive) {
+        return NextResponse.json(
+          { error: 'Email address has expired' },
+          { status: 410 }
+        );
+      }
+      
+      return NextResponse.json(emailAddress);
     }
     
-    const emailAddress = await db.emailAddress.findUnique({
-      where: { address },
+    // 如果没有提供address参数，返回所有邮箱地址列表
+    const addresses = await db.emailAddress.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 50,
       include: {
-        emails: {
-          orderBy: { receivedAt: 'desc' },
-          take: 50,
-          include: {
-            attachments: true,
+        _count: {
+          select: {
+            emails: true,
           },
         },
       },
     });
     
-    if (!emailAddress) {
-      return NextResponse.json(
-        { error: 'Email address not found' },
-        { status: 404 }
-      );
-    }
-    
-    // 检查是否过期
-    if (emailAddress.expiresAt < new Date() || !emailAddress.isActive) {
-      return NextResponse.json(
-        { error: 'Email address has expired' },
-        { status: 410 }
-      );
-    }
-    
-    return NextResponse.json(emailAddress);
+    return NextResponse.json({ addresses });
   } catch (error) {
     console.error('Error fetching email address:', error);
     return NextResponse.json(

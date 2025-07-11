@@ -70,9 +70,36 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
     
     // 更新邮件状态
-    const updatedFields: { isRead?: boolean } = {};
+    const updatedFields: { 
+      isRead?: boolean; 
+      isStarred?: boolean; 
+      isArchived?: boolean; 
+      isDeleted?: boolean;
+      category?: string;
+      tags?: string[];
+      verificationCode?: string;
+    } = {};
+    
     if (typeof body.isRead === 'boolean') {
       updatedFields.isRead = body.isRead;
+    }
+    if (typeof body.isStarred === 'boolean') {
+      updatedFields.isStarred = body.isStarred;
+    }
+    if (typeof body.isArchived === 'boolean') {
+      updatedFields.isArchived = body.isArchived;
+    }
+    if (typeof body.isDeleted === 'boolean') {
+      updatedFields.isDeleted = body.isDeleted;
+    }
+    if (typeof body.category === 'string') {
+      updatedFields.category = body.category;
+    }
+    if (Array.isArray(body.tags)) {
+      updatedFields.tags = body.tags;
+    }
+    if (typeof body.verificationCode === 'string') {
+      updatedFields.verificationCode = body.verificationCode;
     }
     
     const updatedEmail = await db.email.update({

@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx prisma migrate dev --name add-email-states)",
+      "Bash(npx shadcn-ui@latest add popover)",
+      "Bash(npx shadcn@latest add popover)",
+      "Bash(npx shadcn@latest add select)",
+      "Bash(npm run build)",
+      "Bash(npx shadcn@latest add switch)",
+      "Bash(npx shadcn@latest add checkbox)",
+      "Bash(sed -i '' '/memoizedEmails/,+6d' /Users/youming/GitHub/temp-mail/src/components/email-list.tsx)",
+      "Bash(sed -i '' '/const \\[isInitialLoading, setIsInitialLoading\\]/d' /Users/youming/GitHub/temp-mail/src/app/page.tsx)",
+      "Bash(npx prisma migrate dev --name add_mailbox_label)",
+      "Bash(npm run dev)",
+      "Bash(npm run dev -- --port 3334)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npm install @radix-ui/react-label @radix-ui/react-tabs @radix-ui/react-dialog)",
+      "Bash(pnpm add @radix-ui/react-label @radix-ui/react-tabs @radix-ui/react-dialog)",
+      "Bash(pnpm add @radix-ui/react-dialog)",
+      "Bash(npx prisma migrate dev --name add_smart_classification)",
+      "Bash(rg \"isInitialLoading\" /Users/youming/GitHub/temp-mail/src/app/page.tsx)",
+      "Bash(rg -n \"onClick.*onEmailSelect\" /Users/youming/GitHub/temp-mail/src/components/email-list.tsx)",
+      "Bash(rg -A 20 -B 5 \"key={email.id}\" /Users/youming/GitHub/temp-mail/src/components/email-list.tsx)",
+      "Bash(rg -A 20 -B 5 \"key=\\{email\\.id\\}\" /Users/youming/GitHub/temp-mail/src/components/email-list.tsx)",
+      "Bash(npx tsc --noEmit --skipLibCheck src/components/email-list.tsx)",
+      "Bash(npm run lint)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm db:generate:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm db:migrate:*)",
+      "Bash(pnpm build:*)",
+      "Bash(rm -rf .next)"
+    ],
+    "deny": []
+  }
+}

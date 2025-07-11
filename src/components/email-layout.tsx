@@ -2,34 +2,70 @@
 
 import * as React from "react"
 import { useState } from "react"
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { EmailSidebar } from "@/components/email-sidebar"
+import { ThemeToggle } from "@/components/theme-toggle"
+import { EmailSearch } from "@/components/email-search"
+import { NotificationSettings } from "@/components/notification-settings"
+import { LifecycleManagement } from "@/components/lifecycle-management"
+import { SecuritySettings } from "@/components/security-settings"
+import { PWAInstall } from "@/components/pwa-install"
+import type { SearchFilters } from "@/components/email-search"
+import type { SecuritySettings as SecuritySettingsType } from "@/components/security-settings"
 import { 
   Mail, 
-  RefreshCw, 
-  Copy,
-  Menu,
-  Search
+  Menu
 } from "lucide-react"
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
+
+interface EmailAddress {
+  id: string
+  address: string
+  createdAt: Date
+  expiresAt: Date
+  isActive: boolean
+  renewalCount: number
+  maxRenewals: number
+  lastRenewalAt?: Date
+  warningsSent: number
+  autoRenewalEnabled: boolean
+  customExpirationMinutes: number
+}
+
+interface Email {
+  id: string
+  from: string
+  to: string
+  subject?: string
+  content: string
+  timestamp: Date
+}
 
 interface EmailLayoutProps {
   children: React.ReactNode
   currentEmail?: string
+  currentEmailAddress?: EmailAddress | null
   onGenerateEmail?: () => void
-  onCopyEmail?: () => void
   onSendTestEmail?: () => void
-  onRefreshEmails?: () => void
-  onToggleAutoRefresh?: () => void
-  autoRefresh?: boolean
-  lastRefresh?: Date | null
+  onNavigationClick?: (filter: 'inbox' | 'starred' | 'archived' | 'trash') => void
+  onSearch?: (query: string, filters: SearchFilters) => void
+  onClearSearch?: () => void
+  onNewEmailNotification?: (notifyFn: (email: Email) => void) => void
+  onAddressSelect?: (address: EmailAddress) => void
+  onAddressUpdate?: (address: EmailAddress) => void
+  onSecuritySettingsChange?: (settings: SecuritySettingsType) => void
+  currentFilter?: 'inbox' | 'starred' | 'archived' | 'trash'
+  starredCount?: number
+  archivedCount?: number
+  trashCount?: number
   unreadCount?: number
   totalCount?: number
   isLoading?: boolean
@@ -38,13 +74,20 @@ interface EmailLayoutProps {
 export function EmailLayout({ 
   children, 
   currentEmail,
+  currentEmailAddress,
   onGenerateEmail,
-  onCopyEmail,
   onSendTestEmail,
-  onRefreshEmails,
-  onToggleAutoRefresh,
-  autoRefresh,
-  lastRefresh,
+  onNavigationClick,
+  onSearch,
+  onClearSearch,
+  onNewEmailNotification,
+  onAddressSelect,
+  onAddressUpdate,
+  onSecuritySettingsChange,
+  currentFilter,
+  starredCount,
+  archivedCount,
+  trashCount,
   unreadCount,
   totalCount,
   isLoading 
@@ -56,16 +99,27 @@ export function EmailLayout({
       {/* 移动端侧边栏 */}
       <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
         <SheetContent side="left" className="w-80 p-0">
+          <VisuallyHidden>
+            <SheetHeader>
+              <SheetTitle>导航菜单</SheetTitle>
+              <SheetDescription>
+                邮箱管理和导航菜单
+              </SheetDescription>
+            </SheetHeader>
+          </VisuallyHidden>
           <div className="flex h-full flex-col">
             <EmailSidebar 
               currentEmail={currentEmail}
+              currentEmailAddress={currentEmailAddress}
               onGenerateEmail={onGenerateEmail}
-              onCopyEmail={onCopyEmail}
               onSendTestEmail={onSendTestEmail}
-              onRefreshEmails={onRefreshEmails}
-              onToggleAutoRefresh={onToggleAutoRefresh}
-              autoRefresh={autoRefresh}
-              lastRefresh={lastRefresh}
+              onNavigationClick={onNavigationClick}
+              onAddressSelect={onAddressSelect}
+              onAddressUpdate={onAddressUpdate}
+              currentFilter={currentFilter}
+              starredCount={starredCount}
+              archivedCount={archivedCount}
+              trashCount={trashCount}
               unreadCount={unreadCount}
               totalCount={totalCount}
               isLoading={isLoading}
@@ -78,13 +132,16 @@ export function EmailLayout({
       <div className="hidden md:flex md:w-80 md:flex-col">
         <EmailSidebar 
           currentEmail={currentEmail}
+          currentEmailAddress={currentEmailAddress}
           onGenerateEmail={onGenerateEmail}
-          onCopyEmail={onCopyEmail}
           onSendTestEmail={onSendTestEmail}
-          onRefreshEmails={onRefreshEmails}
-          onToggleAutoRefresh={onToggleAutoRefresh}
-          autoRefresh={autoRefresh}
-          lastRefresh={lastRefresh}
+          onNavigationClick={onNavigationClick}
+          onAddressSelect={onAddressSelect}
+          onAddressUpdate={onAddressUpdate}
+          currentFilter={currentFilter}
+          starredCount={starredCount}
+          archivedCount={archivedCount}
+          trashCount={trashCount}
           unreadCount={unreadCount}
           totalCount={totalCount}
           isLoading={isLoading}
@@ -112,16 +169,11 @@ export function EmailLayout({
 
           {/* 搜索框 */}
           <div className="w-full flex-1">
-            <form>
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="搜索邮件..."
-                  className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-                />
-              </div>
-            </form>
+            <EmailSearch
+              onSearch={onSearch || (() => {})}
+              onClear={onClearSearch || (() => {})}
+              isSearching={isLoading}
+            />
           </div>
 
           {/* 当前邮箱地址 */}
@@ -131,30 +183,18 @@ export function EmailLayout({
                 <Mail className="h-4 w-4" />
                 <span className="font-mono">{currentEmail}</span>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onCopyEmail}
-                className="h-8"
-              >
-                <Copy className="h-4 w-4" />
-                <span className="ml-2 hidden sm:inline">复制</span>
-              </Button>
             </div>
           )}
 
           {/* 工具按钮 */}
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onRefreshEmails}
-              disabled={isLoading}
-              className="h-8"
-            >
-              <RefreshCw className={cn("h-4 w-4", isLoading && "animate-spin")} />
-              <span className="ml-2 hidden sm:inline">刷新</span>
-            </Button>
+            <PWAInstall />
+            <SecuritySettings onSettingsChange={onSecuritySettingsChange} />
+            <LifecycleManagement 
+              emailAddress={currentEmailAddress}
+              onAddressUpdate={onAddressUpdate}
+            />
+            <NotificationSettings onNewEmailNotification={onNewEmailNotification} />
             <ThemeToggle />
           </div>
         </header>

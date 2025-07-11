@@ -1,0 +1,271 @@
+/* PWA 移动端优化样式 */
+
+/* 移动端触摸优化 */
+@media (hover: none) and (pointer: coarse) {
+  /* 增大可点击区域 */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* 移除 hover 效果 */
+  .hover\:bg-muted\/50:hover {
+    background-color: transparent;
+  }
+  
+  /* 优化按钮大小 */
+  button {
+    min-height: 44px;
+  }
+  
+  /* 优化输入框 */
+  input, textarea {
+    font-size: 16px; /* 防止 iOS 缩放 */
+  }
+}
+
+/* 安全区域适配 */
+@supports (padding: max(0px)) {
+  .safe-area-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  
+  .safe-area-left {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+  
+  .safe-area-right {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}
+
+/* PWA 启动画面 */
+.pwa-splash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.pwa-splash-content {
+  text-align: center;
+  color: white;
+}
+
+.pwa-splash-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  background: white;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.pwa-splash-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.pwa-splash-subtitle {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+/* 滑动手势反馈 */
+.swipe-feedback {
+  transition: transform 0.1s ease-out;
+}
+
+.swipe-active {
+  transform: scale(0.98);
+}
+
+/* 下拉刷新动画 */
+.pull-to-refresh {
+  position: relative;
+  overflow: hidden;
+}
+
+.pull-to-refresh-indicator {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 20px;
+  background: var(--background);
+  border-radius: 50%;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.pull-to-refresh-active .pull-to-refresh-indicator {
+  transform: translateX(-50%) translateY(80px);
+}
+
+/* 移动端导航优化 */
+@media (max-width: 768px) {
+  .mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--background);
+    border-top: 1px solid var(--border);
+    padding: 12px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    z-index: 50;
+  }
+  
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    min-width: 60px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+  }
+  
+  .mobile-nav-item.active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+  
+  .mobile-nav-icon {
+    width: 24px;
+    height: 24px;
+    margin-bottom: 4px;
+  }
+  
+  .mobile-nav-label {
+    font-size: 12px;
+    line-height: 1;
+  }
+}
+
+/* 全屏模式优化 */
+@media (display-mode: standalone) {
+  /* PWA 模式下的特殊样式 */
+  .pwa-header {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .pwa-content {
+    height: 100vh;
+    height: 100dvh; /* 动态视口高度 */
+  }
+}
+
+/* 横屏适配 */
+@media (orientation: landscape) and (max-height: 500px) {
+  .landscape-compact {
+    padding: 8px;
+  }
+  
+  .landscape-compact .email-list-item {
+    padding: 12px;
+  }
+  
+  .landscape-compact .sidebar {
+    width: 280px;
+  }
+}
+
+/* 触摸滚动优化 */
+.smooth-scroll {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+/* 防止选择文本 */
+.prevent-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* 优化点击高亮 */
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 加载状态优化 */
+.loading-skeleton {
+  background: linear-gradient(90deg, 
+    var(--muted) 25%, 
+    transparent 37%, 
+    var(--muted) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-loading 1.4s ease infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: -100% 50%;
+  }
+}
+
+/* 振动反馈 */
+.haptic-feedback {
+  /* 这个类用于 JavaScript 触发振动反馈 */
+}
+
+/* 网络状态提示 */
+.network-status {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  padding: 8px;
+  text-align: center;
+  font-size: 14px;
+  z-index: 100;
+  transform: translateY(-100%);
+  transition: transform 0.3s ease;
+}
+
+.network-status.offline {
+  transform: translateY(0);
+}
+
+/* 手势指示器 */
+.swipe-hint {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  opacity: 0.5;
+  animation: swipe-hint-pulse 2s infinite;
+}
+
+@keyframes swipe-hint-pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: translateY(-50%) translateX(0);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateY(-50%) translateX(-4px);
+  }
+}
